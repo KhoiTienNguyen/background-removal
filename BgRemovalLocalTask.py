@@ -1,11 +1,14 @@
 import argparse
 import os.path as osp
+import os
 import glob
+from pathlib import Path
 
 import numpy as np
-import skimage
+from skimage.io import imread, imsave
 import cv2
-from matplotlib import pyplot as plt
+# from matplotlib import pyplot as plt
+from background_removal_engine import remove_background
 
 # TODO: import engine
 
@@ -17,11 +20,14 @@ def getArgs():
                         help="Write <image_name><output_postfix>.png to this folder.")
     parser.add_argument("--output_postfix", type=str, default="_nBg",
                         help="Write to <image_name><output_postfix>.png")
-
+    parser.add_argument("--window_size", type=int, default=15,
+                        help="Parameter for saulova algorithm. Must be an odd number.")
+    parser.add_argument("--k", type=float, default=0.2,
+                        help="Paramter for saulova algorithm")
     args = parser.parse_args()
     return args
 
-def load_image(image_path, mode):
+def load_image(image_path):
     """Load <image_path> as a ndarray with shape (width, height, 3).
     Only support rgb format.
 
@@ -33,20 +39,12 @@ def load_image(image_path, mode):
     Exception:
         TypeError: Do not try to load a grey scale image.
     """
-    if mode == 'rgb':
-        image_rgb = skimage.io.imread(image_path)
+    image_rgb = imread(image_path)
 
-        if image_rgb.dtype != np.uint8:
-            raise TypeError(f"load_image should return dtype=uint8. Got an image {image_path} with dtype {image_rgb.dtype}")
+    if image_rgb.dtype != np.uint8:
+        raise TypeError(f"load_image should return dtype=uint8. Got an image {image_path} with dtype {image_rgb.dtype}")
 
-        if image_rgb.ndim == 3:
-            image_rgb = image_rgb[..., :3] # Remove the alpha channel
-        else:
-            raise TypeError(f"load_image only supports rgb format. Got an image {image_path} with shape {image_rgb.shape}")
-
-        return image_rgb
-    else:
-        raise NotImplementedError(f"Try do load image with invalid mode: {mode}")
+    return image_rgb
 
 def loader(args):
     """ A generator to load *.png locating inside <args.dataset_path>.
@@ -61,7 +59,7 @@ def loader(args):
     for image_path in image_path_list:
         # Load image
         image_name = image_path.split("/")[-1]
-        image_rgb = load_image(image_path, mode='rgb')
+        image_rgb = load_image(image_path)
         yield image_name, image_rgb
 
 def writer(image, image_name, args):
@@ -83,15 +81,13 @@ def writer(image, image_name, args):
     output_path = osp.join(args.output_path, new_image_name)
     print (f"Write to {output_path}")
 
-    image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
-    cv2.imwrite(output_path, image)
+    imsave(output_path, image)
 
 def main():
     args = getArgs()
 
     for image_name, image_rgb in loader(args):
-        # TODO: Engine goes here
-        image_noBg = image_rgb
+        image_noBg = remove_background(image_rgb, args.window_size, args.k)
         writer(image_noBg, image_name, args)
 
 if __name__ == "__main__":
