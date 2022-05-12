@@ -42,7 +42,7 @@ def load_image(image_path):
     image_rgb = imread(image_path)
 
     if image_rgb.dtype != np.uint8:
-        raise TypeError(f"load_image should return dtype=uint8. Got an image {image_path} with dtype {image_rgb.dtype}")
+        raise TypeError("load_image should return dtype=uint8. Got an image {} with dtype {}".format(image_path, image_rgb.dtype))
 
     return image_rgb
 
@@ -77,9 +77,10 @@ def writer(image, image_name, args):
         None
     """
     filename, filetype = image_name.split(".")
-    new_image_name = f"{filename}{args.output_postfix}.{filetype}"
+    #new_image_name = f"{filename}{args.output_postfix}.{filetype}"
+    new_image_name = "{}{}.{}".format(filename, args.output_postfix, filetype)
     output_path = osp.join(args.output_path, new_image_name)
-    print (f"Write to {output_path}")
+    print ("Write to {}".format(output_path))
 
     imsave(output_path, image)
 
