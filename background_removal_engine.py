@@ -7,6 +7,14 @@ import cv2
 # from PIL import Image, ImageEnhance 
 
 def remove_border(img):
+    """ Removes black border around image.
+
+    Parameters:
+        img (np.ndarray): Image with shape (W, H, 4) or (W, H, 3) or (W, H) with dtype=uint8.
+
+    Returns:
+        img (np.ndarray): Image with shape (W, H, 4) with dtype=uint8.
+    """
     # convert to gray
     gray = img if len(img.shape) == 2 else cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     # threshold
@@ -42,6 +50,16 @@ def binary_threshold(img, threshold):
     return mask_bool
 
 def sauvola(img, window_size, k, r):
+    """ Receives a grayscale image and creates a mask for background removal.
+
+    Parameters:
+        img (np.ndarray): Image with shape (W, H, 3) or (W, H, 4) with dtype=uint8.
+        window_size (int): window_size parameter for saulova_threshold. Must be odd
+        k (float): k parameter for saulova_threshold. Must be a positive integer.
+
+    Returns:
+        mask_bool (np.ndarray): Boolean image with shape (W, H).
+    """
     mask = threshold_sauvola(img, window_size=window_size, k=k, r=r)
     # Create binary mask
     mask_bool = img < mask
@@ -49,6 +67,16 @@ def sauvola(img, window_size, k, r):
     return mask_bool
 
 def contrast_and_brightness(img, contrast, brightness):
+    """ Adjusts the contrast and brightness of the image.
+
+    Parameters:
+        img (np.ndarray): Image with shape (W, H, 4) or (W, H, 3) or (W, H) with dtype=uint8.
+        contrast (float): The amount to adjust contrast by.
+        brightness (float): The amount to adjust brightness by.
+
+    Returns:
+        img (np.ndarray): Image with same shape as input image and dtype=uint8.
+    """
     img = np.int16(img)
     img = img * (contrast/127+1) - contrast + brightness
     img = np.clip(img, 0, 255)
@@ -68,6 +96,14 @@ def scan(img):
     return result
 
 def grayscale(img):
+    """ Converts image to grayscale then increases the contrast
+
+    Parameters:
+        img (np.ndarray): Image with shape (W, H, 3) or (W, H, 4) with dtype=uint8.
+
+    Returns:
+        grayscale (np.ndarray): Image with shape (W, H) with dtype=uint8.
+    """
     # Convert to grayscale
     grayscale = rgb2gray(img[:,:,:3])
     # Convert to uint8 format
@@ -78,6 +114,16 @@ def grayscale(img):
     return grayscale
 
 def remove_background(img, window_size, k, r=None):
+    """ Removes background from an image. Image can be Grayscale/RGB/RGBA
+
+    Parameters:
+        img (np.ndarray): Image with shape (W, H, 4) or (W, H, 3) or (W, H) with dtype=uint8.
+        window_size (int): window_size parameter for saulova_threshold. Must be odd
+        k (float): k parameter for saulova_threshold. Must be a positive integer.
+
+    Returns:
+        img (np.ndarray): Image with shape (W, H, 4) with dtype=uint8.
+    """
     # Remove black border
     img = remove_border(img)
     # For grayscale images
