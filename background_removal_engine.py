@@ -1,9 +1,9 @@
 from skimage.filters import (threshold_sauvola)
 from skimage.io import imread, imsave
 from skimage.color import rgb2gray
+import skimage.exposure
 import numpy as np
 import cv2
-import skimage.exposure
 # from PIL import Image, ImageEnhance 
 
 def remove_border(img):
