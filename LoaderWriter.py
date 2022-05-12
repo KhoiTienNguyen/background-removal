@@ -1,5 +1,5 @@
 import numpy as np
-import skimage
+#import skimage
 import cv2
 
 def load_check(img):
@@ -13,22 +13,21 @@ def load_check(img):
         raise TypeError("load_image only supports rgb format. Got an image {} with shape {}".format(image_path, image_rgb.shape))
     return img
 
-def load_image(image_path, mode):
+def load_image(image_path, mode='bgr_cv'):
     """Load <image_path> as a ndarray with shape (width, height, 3).
-    Only support rgb format.
+    Only support BGR
 
     Parameters:
         image_path (str): Load <image path>. The image should be in RGB or RGBA.
-        mode (str): A flag regarding how to load the image. For now it only supports rgb
+        mode (str): A flag regarding how to load the image. For now it only supports <bgr_cv>
     Returns:
         np.ndarray: Load image with shape (W, H, 3) with dtype=uint8. The channel order is RGB. 
     Exception:
         TypeError: Do not try to load a grey scale image.
     """
     if mode == 'rgb':
-        image_rgb = skimage.io.imread(image_path)
-        image_rgb = load_check(image_rgb)
-        return image_rgb
+        # Use skimage
+        return None
     elif mode == "bgr_cv":
         image_bgr = cv2.imread(image_path, cv2.IMREAD_COLOR)
         image_bgr = load_check(image_bgr)
@@ -36,8 +35,8 @@ def load_image(image_path, mode):
     else:
         raise NotImplementedError("Try do load image with invalid mode: {}".format(mode))
 
-def write_image(image_path, image, mode):
-    """Write <image> to <args.output_path> with a new name. <image name without its filetype><args.output_postfix>.<filetype>
+def write_image(image_path, image, mode='bgr_cv'):
+    """Write <image> to <image_path>.
 
     This function convert RGB to BGR and use opencv to write the image.
     Sklearn package runs significantly slower than opencv.
@@ -46,16 +45,19 @@ def write_image(image_path, image, mode):
     Parameters:
         image (np.ndarray): The output image with shape (W, H, 3) with dtype=uint8. The channel order is RGB. 
         image_name (str): the image_name from the loader function.
-        args (argparse.Namespace): A namespace with arguments: <output_path>, <output_postfix>
+        mode (str): A flag regarding how to load the image. For now it only supports <bgr_cv>
     Returns:
         None
     """
     if mode == "rgb":
+        # Conver RGB to BGR, need to do this step if you use sklearn to load image.
         image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
     elif mode == "bgr_cv":
+        # It's already in bgr
         pass
     else:
         raise NotImplementedError("Try do load image with invalid mode: {}".format(mode))
+
     cv2.imwrite(image_path, image)
 
 if __name__ == "__main__":
