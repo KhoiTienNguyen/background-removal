@@ -39,7 +39,7 @@ class BgRemoval(RodanTask):
                 'default': 15
             },
             'k': {
-                'type': 'float',
+                'type': 'number',
                 'minimum': 0.0,
                 'default': 0.2
             }
@@ -55,8 +55,7 @@ class BgRemoval(RodanTask):
         image_bgr = LoaderWriter.load_image(load_image_path, mode=mode) # (W, H, 3)
 
         # Remove background here.
-        image_processed = Engine.remove_background(image_bgr, int(BgRemoval.settings["properties"]["window_size"]["default"]), 
-                                    float(BgRemoval.settings["properties"]["k"]["default"]))
+        image_processed = Engine.remove_background(image_bgr, settings["window_size"], settings["k"])
 
         save_image_path = "{}.png".format(outputs['RGB PNG image'][0]['resource_path'])
         LoaderWriter.write_image(save_image_path, image_processed, mode='bgr_cv')
