@@ -58,7 +58,7 @@ class BgRemoval(RodanTask):
         image_processed = Engine.remove_background(image_bgr, int(BgRemoval.settings["properties"]["window_size"]["default"]), 
                                     float(BgRemoval.settings["properties"]["k"]["default"]))
 
-        save_image_path = f"{outputs['RGB PNG image'][0]['resource_path']}.png"
+        save_image_path = "{}.png".format(outputs['RGB PNG image'][0]['resource_path'])
         LoaderWriter.write_image(save_image_path, image_processed, mode='bgr_cv')
         os.rename(save_image_path,outputs['RGB PNG image'][0]['resource_path'])
         return True
