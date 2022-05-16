@@ -4,7 +4,7 @@ from skimage.color import rgb2gray
 import numpy as np
 import cv2
 
-def sauvola(img, window_size, k, r):
+def sauvola(img, window_size, k):
     """ Receives a grayscale image and creates a mask for background removal.
 
     Parameters:
@@ -15,7 +15,7 @@ def sauvola(img, window_size, k, r):
     Returns:
         mask_bool (np.ndarray): Boolean image with shape (W, H).
     """
-    mask = threshold_sauvola(img, window_size=window_size, k=k, r=r)
+    mask = threshold_sauvola(img, window_size=window_size, k=k)
     # Create binary mask
     mask_bool = img < mask
 
@@ -39,7 +39,7 @@ def contrast_and_brightness(img, contrast, brightness):
 
     return img
 
-def grayscale(img):
+def grayscale(img, contrast, brightness):
     """ Converts image to grayscale then increases the contrast
 
     Parameters:
@@ -53,11 +53,11 @@ def grayscale(img):
     # Convert to uint8 format
     grayscale = uint8image = np.uint8(grayscale*255)
     # Increase contrast
-    grayscale = contrast_and_brightness(grayscale, 127, 0)
+    grayscale = contrast_and_brightness(grayscale, contrast, brightness)
 
     return grayscale
 
-def remove_background(img, window_size, k, r=None):
+def remove_background(img, window_size, k, contrast, brightness):
     """ Removes background from an image. Image can be Grayscale/RGB/RGBA
 
     Parameters:
@@ -72,19 +72,19 @@ def remove_background(img, window_size, k, r=None):
     img = cv2.cvtColor(img, cv2.COLOR_BGR2BGRA)
     # For grayscale images
     if len(img.shape) == 2:
-        gray = contrast_and_brightness(img, 127, 0)
-        img = img*(sauvola(gray, window_size, k, r))
+        gray = contrast_and_brightness(img, contrast, brightness)
+        img = img*(sauvola(gray, window_size, k))
     # For RGB or RGBA images
     else:
-        gray = grayscale(img)
-        img = img*(sauvola(gray, window_size, k, r)[:,:,np.newaxis])
+        gray = grayscale(img, contrast, brightness)
+        img = img*(sauvola(gray, window_size, k)[:,:,np.newaxis])
     
     return img
 
 def main():
     # Import image
-    img = imread('../datasets/images/MS73/Image - 040.png')
-    img = remove_background(img, 101, 0.2, r=None)
+    img = imread('../datasets/images/bounding/test.png')
+    img = remove_background(img, 101, 0.2,127,0)
     # Save results
     imsave("../datasets/results/result.png", img)
 
