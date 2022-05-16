@@ -1,5 +1,5 @@
 import numpy as np
-#import skimage
+from skimage.io import imread, imsave
 import cv2
 
 def load_check(img):
@@ -27,7 +27,8 @@ def load_image(image_path, mode='bgr_cv'):
     """
     if mode == 'rgb':
         # Use skimage
-        return None
+        img = imread(image_path)
+        return img
     elif mode == "bgr_cv":
         image_bgr = cv2.imread(image_path, cv2.IMREAD_COLOR)
         image_bgr = load_check(image_bgr)
@@ -51,17 +52,18 @@ def write_image(image_path, image, mode='bgr_cv'):
     """
     if mode == "rgb":
         # Conver RGB to BGR, need to do this step if you use sklearn to load image.
-        image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+        # image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+        pass
     elif mode == "bgr_cv":
         # It's already in bgr
         pass
     else:
         raise NotImplementedError("Try do load image with invalid mode: {}".format(mode))
 
-    cv2.imwrite(image_path, image)
+    imsave(image_path, image)
 
 if __name__ == "__main__":
-    image_path = "./datasets/images/Image - 040.png"
+    image_path = "Image - 040.png"
     image_bgr = load_image(image_path, mode='bgr_cv')
     image_rgb = load_image(image_path, mode='rgb')
     diff = np.mean(np.abs(cv2.cvtColor(image_bgr, cv2.COLOR_BGR2RGB) - image_rgb))
@@ -70,4 +72,4 @@ if __name__ == "__main__":
     print (diff)
     print ("pass")
 
-    write_image("./tmp.png", image_bgr, mode='bgr_cv')
+    write_image("./tmp.png", image_rgb, mode='bgr_cv')
