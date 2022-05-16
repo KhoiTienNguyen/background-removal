@@ -6,17 +6,17 @@ from celery.utils.log import get_task_logger
 class BgRemoval(RodanTask):
 
     name = 'Remove background'
-    author = 'author'
+    author = 'Wanyi Lin and Khoi Nguyen'
     description = "Use Sauvola threshold to remove background"
     logger = get_task_logger(__name__)
 
     enabled = True
-    category = 'Background removal - remove image packground'
+    category = 'Background removal - remove image background'
     interactive = False
 
     input_port_types = [{
-        'name': 'PNG image',
-        'resource_types': ['image/rgb+png', 'image/rgba+png', 'image/greyscale+png'],
+        'name': 'PNG Image',
+        'resource_types': lambda mime: mime.startswith('image/'),
         'minimum': 1,
         'maximum': 1
     }]
@@ -42,6 +42,14 @@ class BgRemoval(RodanTask):
                 'type': 'number',
                 'minimum': 0.0,
                 'default': 0.2
+            },
+            'contrast': {
+                'type': 'number',
+                'default': 127
+            },
+            'brightness': {
+                'type': 'number',
+                'default': 0
             }
         }
     }
@@ -50,15 +58,15 @@ class BgRemoval(RodanTask):
         from . import background_removal_engine as Engine
         from . import LoaderWriter
 
-        mode = 'bgr_cv'
+        mode = 'rgb'
         load_image_path = inputs['PNG image'][0]['resource_path']
-        image_bgr = LoaderWriter.load_image(load_image_path, mode=mode) # (W, H, 3)
+        image_bgr = LoaderWriter.load_image(load_image_path, mode=mode)
 
         # Remove background here.
-        image_processed = Engine.remove_background(image_bgr, settings["window_size"], settings["k"])
+        image_processed = Engine.remove_background(image_bgr, settings["window_size"], settings["k"], settings["contrast"], settings["brightness"])
 
         save_image_path = "{}.png".format(outputs['RGB PNG image'][0]['resource_path'])
-        LoaderWriter.write_image(save_image_path, image_processed, mode='bgr_cv')
+        LoaderWriter.write_image(save_image_path, image_processed, mode=mode)
         os.rename(save_image_path,outputs['RGB PNG image'][0]['resource_path'])
         return True
 
