@@ -5,7 +5,7 @@ from celery.utils.log import get_task_logger
 
 class BgRemoval(RodanTask):
 
-    name = 'Remove background'
+    name = 'Background Removal'
     author = 'Wanyi Lin and Khoi Nguyen'
     description = "Use Sauvola threshold to remove background"
     logger = get_task_logger(__name__)
@@ -15,7 +15,7 @@ class BgRemoval(RodanTask):
     interactive = False
 
     input_port_types = [{
-        'name': 'PNG Image',
+        'name': 'Image',
         'resource_types': lambda mime: mime.startswith('image/'),
         'minimum': 1,
         'maximum': 1
@@ -45,11 +45,11 @@ class BgRemoval(RodanTask):
             },
             'contrast': {
                 'type': 'number',
-                'default': 127
+                'default': 127.0
             },
             'brightness': {
                 'type': 'number',
-                'default': 0
+                'default': 0.0
             }
         }
     }
@@ -59,7 +59,7 @@ class BgRemoval(RodanTask):
         from . import LoaderWriter
 
         mode = 'rgb'
-        load_image_path = inputs['PNG image'][0]['resource_path']
+        load_image_path = inputs['Image'][0]['resource_path']
         image_bgr = LoaderWriter.load_image(load_image_path, mode=mode)
 
         # Remove background here.
