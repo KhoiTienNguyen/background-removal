@@ -15,5 +15,7 @@ Parameters:
   * **-pfx** `Postfix for output files <image_name><output_postfix>.png` (**Default:** *_nBg*)
   * **-w** `Window size for saulova algorithm. Must be an odd number integer.` (**Default:** *15*)
   * **-k** `Parameter for saulova algorithm. Must be positive` (**Default:** *0.2*)
+  * **-c** `Amount to adjust contrast by. Can be negative.` (**Default:** *127.0*)
+  * **-b** `Amount to adjust brightness by. Can be negative` (**Default:** *0.0*)
     
-Example: `python3 BgRemovalLocalTask.py -psr datasets/images/MS73 -out dataset/output/MS73 -pfx _Bgr -w 101 -k 0.15`
+Example: `python3 BgRemovalLocalTask.py -psr datasets/images/MS73 -out dataset/output/MS73 -pfx _Bgr -w 101 -k 0.15 -c 150.0 -b 5.0`
