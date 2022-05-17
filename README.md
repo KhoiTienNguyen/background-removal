@@ -18,4 +18,4 @@ Parameters:
   * **-c** `Amount to adjust contrast by. Can be negative.` (**Default:** *127.0*)
   * **-b** `Amount to adjust brightness by. Can be negative` (**Default:** *0.0*)
     
-Example: `python3 BgRemovalLocalTask.py -psr datasets/images/MS73 -out dataset/output/MS73 -pfx _Bgr -w 101 -k 0.15 -c 150.0 -b 5.0`
+Example: `python3 BgRemovalLocalTask.py -psr datasets/images/MS73 -out datasets/output/MS73 -pfx _Bgr -w 101 -k 0.15 -c 150.0 -b 5.0`
