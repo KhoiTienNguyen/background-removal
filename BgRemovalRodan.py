@@ -22,7 +22,7 @@ class BgRemoval(RodanTask):
     }]
     output_port_types = [{
         'name': 'RGB PNG image',
-        'resource_types': ['image/rgb+png'],
+        'resource_types': ['image/rgba+png'],
         'minimum': 1,
         'maximum': 1
     }]
