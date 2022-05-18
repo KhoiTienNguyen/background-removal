@@ -58,15 +58,14 @@ class BgRemoval(RodanTask):
         from . import background_removal_engine as Engine
         from . import LoaderWriter
 
-        mode = 'rgb'
         load_image_path = inputs['Image'][0]['resource_path']
-        image_bgr = LoaderWriter.load_image(load_image_path, mode=mode)
+        image_bgr = LoaderWriter.load_image(load_image_path)
 
         # Remove background here.
         image_processed = Engine.remove_background(image_bgr, settings["window_size"], settings["k"], settings["contrast"], settings["brightness"])
 
         save_image_path = "{}.png".format(outputs['RGB PNG image'][0]['resource_path'])
-        LoaderWriter.write_image(save_image_path, image_processed, mode=mode)
+        LoaderWriter.write_image(save_image_path, image_processed)
         os.rename(save_image_path,outputs['RGB PNG image'][0]['resource_path'])
         return True
 
