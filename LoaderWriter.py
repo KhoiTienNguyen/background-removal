@@ -1,4 +1,5 @@
 import numpy as np
+from skimage.io import imread, imsave
 import cv2
 
 def load_check(img, img_path):
@@ -24,7 +25,8 @@ def load_image(image_path, mode='bgr_cv'):
     """
     if mode == 'rgb':
         # Use skimage
-        raise NotImplementedError("Try do load image with skimage, but only support cv2.")
+        img = imread(image_path)
+        return img
     elif mode == "bgr_cv":
         image_bgr = cv2.imread(image_path, cv2.IMREAD_COLOR)
         image_bgr = load_check(image_bgr, image_path)
@@ -48,11 +50,11 @@ def write_image(image_path, image, mode='bgr_cv'):
     """
     if mode == "rgb":
         # Conver RGB to BGR, need to do this step if you use sklearn to load image.
-        image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+        # image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+        pass
     elif mode == "bgr_cv":
         # It's already in bgr
         pass
     else:
         raise NotImplementedError("Try do load image with invalid mode: {}".format(mode))
-
-    cv2.imwrite(image_path, image)
+    imsave(image_path, image)
