@@ -40,40 +40,18 @@ def loader(args):
         image_rgb = load_image(image_path)
         yield image_name, image_rgb
 
-def writer(image, image_name, args):
-    """Write <image> to <args.out> with a new name. <image name without its filetype><args.pfx>.<filetype>
-
-    This function convert RGB to BGR and use opencv to write the image.
-    Sklearn package runs significantly slower than opencv.
-    Make sure the image is in RGB order!
-
-    Parameters:
-        image (np.ndarray): The output image with shape (W, H, 3) with dtype=uint8. The channel order is RGB. 
-        image_name (str): the image_name from the loader function.
-        args (argparse.Namespace): A namespace with arguments: <output_path>, <output_postfix>
-    Returns:
-        None
-    """
-    filename, filetype = image_name.split(".")
-    #new_image_name = f"{filename}{args.pfx}.{filetype}"
-    new_image_name = "{}{}.{}".format(filename, args.pfx, filetype)
-    output_path = osp.join(args.out, new_image_name)
-    print ("Write to {}".format(output_path))
-
-    imsave(output_path, image)
-
 def main():
     args = getArgs()
 
     for image_name, image_rgb in loader(args):
-        image_noBg = remove_background(image_rgb, args.w, args.k, args.c, args.b)
+        image_processed = remove_background(image_rgb, args.w, args.k, args.c, args.b)
 
         filename, filetype = image_name.split(".")
-        new_image_name = "{}{}.{}".format(filename, args.output_postfix, filetype)
-        output_path = osp.join(args.output_path, new_image_name)
+        new_image_name = "{}{}.{}".format(filename, args.pfx, filetype)
+        output_path = osp.join(args.out, new_image_name)
         print ("Write to {}".format(output_path))
 
-        write_image(output_path, image_noBg)
+        write_image(output_path, image_processed)
 
 if __name__ == "__main__":
     main()
