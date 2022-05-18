@@ -7,6 +7,10 @@ Repository of the Rodan wrapper for Background Removal
   * opencv-python (4.5.5.64)
   * numpy (1.21.6)
 
+# Rodan Job
+
+This background removal task belongs inside py3-celery container.
+
 # Local Usage
 Use **BgRemovalLocalTask.py** to run this job locally.
 Parameters:
