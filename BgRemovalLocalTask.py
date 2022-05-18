@@ -14,16 +14,20 @@ from background_removal_engine import remove_background
 
 def getArgs():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--dataset_path", type=str, default="./datasets/images", 
+    parser.add_argument("-psr", type=str, default="./datasets/images", 
                         help="Load <image_name>.png in this folder.")
-    parser.add_argument("--output_path", type=str, default="./datasets/images",
+    parser.add_argument("-out", type=str, default="./datasets/output",
                         help="Write <image_name><output_postfix>.png to this folder.")
-    parser.add_argument("--output_postfix", type=str, default="_nBg",
+    parser.add_argument("-pfx", type=str, default="_nBg",
                         help="Write to <image_name><output_postfix>.png")
-    parser.add_argument("--window_size", type=int, default=15,
+    parser.add_argument("-w", type=int, default=15,
                         help="Parameter for saulova algorithm. Must be an odd number.")
-    parser.add_argument("--k", type=float, default=0.2,
+    parser.add_argument("-k", type=float, default=0.2,
                         help="Paramter for saulova algorithm")
+    parser.add_argument("-c", type=float, default=127.0,
+                        help="Amount to adjust contrast by. Can be negative.")
+    parser.add_argument("-b", type=float, default=0.0,
+                        help="Amount to adjust brightness by. Can be negative")
     args = parser.parse_args()
     return args
 
@@ -47,7 +51,7 @@ def load_image(image_path):
     return image_rgb
 
 def loader(args):
-    """ A generator to load *.png locating inside <args.dataset_path>.
+    """ A generator to load *.png locating inside <args.psr>.
 
     Parameters:
         args (argparse.Namespace): A namespace with <dataset_path> argument.
@@ -55,7 +59,7 @@ def loader(args):
         str: Load image name.
         np.ndarray: Load image with shape (W, H, 3) with dtype=uint8. The channel order is RGB. 
     """
-    image_path_list = [p for p in sorted(glob.glob(osp.join(args.dataset_path, "*.png"))) if args.output_postfix not in p]
+    image_path_list = [p for p in sorted(glob.glob(osp.join(args.psr, "*.png"))) if args.pfx not in p]
     for image_path in image_path_list:
         # Load image
         image_name = image_path.split("/")[-1]
@@ -63,7 +67,7 @@ def loader(args):
         yield image_name, image_rgb
 
 def writer(image, image_name, args):
-    """Write <image> to <args.output_path> with a new name. <image name without its filetype><args.output_postfix>.<filetype>
+    """Write <image> to <args.out> with a new name. <image name without its filetype><args.pfx>.<filetype>
 
     This function convert RGB to BGR and use opencv to write the image.
     Sklearn package runs significantly slower than opencv.
@@ -77,9 +81,9 @@ def writer(image, image_name, args):
         None
     """
     filename, filetype = image_name.split(".")
-    #new_image_name = f"{filename}{args.output_postfix}.{filetype}"
-    new_image_name = "{}{}.{}".format(filename, args.output_postfix, filetype)
-    output_path = osp.join(args.output_path, new_image_name)
+    #new_image_name = f"{filename}{args.pfx}.{filetype}"
+    new_image_name = "{}{}.{}".format(filename, args.pfx, filetype)
+    output_path = osp.join(args.out, new_image_name)
     print ("Write to {}".format(output_path))
 
     imsave(output_path, image)
@@ -88,7 +92,7 @@ def main():
     args = getArgs()
 
     for image_name, image_rgb in loader(args):
-        image_noBg = remove_background(image_rgb, args.window_size, args.k)
+        image_noBg = remove_background(image_rgb, args.w, args.k, args.c, args.b)
         writer(image_noBg, image_name, args)
 
 if __name__ == "__main__":
