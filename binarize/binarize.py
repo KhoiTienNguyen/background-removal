@@ -53,7 +53,6 @@ def build_SAE_network(config):
     pkg_models = os.listdir( os.path.join(os.path.dirname(os.path.abspath(__file__)), 'MODELS') )
     if config['modelpath'].replace('MODELS/', '') in pkg_models:
         config['modelpath'] = os.path.join(os.path.dirname(os.path.abspath(__file__)), config['modelpath'])
-    autoencoder.fit([5],[5],epochs=0)
     autoencoder.load_weights(config['modelpath'])
 
     return autoencoder
@@ -87,10 +86,13 @@ def run_binarize(img_in, img_out):
     autoencoder = build_SAE_network(args)
 
     input_image = cv2.imread(args['imgpath'], cv2.IMREAD_UNCHANGED)
+    # Make a copy of original image to apply background removal mask at the end
     original = input_image.copy()
+    # If image has alpha channel, fill transparent background with average color of image
     if len(input_image.shape) == 3 and input_image.shape[2] == 4:
         avg_color_per_row = np.average(input_image[input_image[:,:,3]>0], axis=0)
         input_image[input_image[:,:,3]==0] = avg_color_per_row
+    # If image is not grayscale, convert to grayscale
     if len(input_image.shape) > 2:
         input_image = cv2.cvtColor(input_image, cv2.COLOR_BGR2GRAY)
     img, rows, cols = load_and_prepare_input_image(args, input_image)
@@ -99,9 +101,10 @@ def run_binarize(img_in, img_out):
     finalImg = img.copy()
     # Padding edge
     img = np.pad(img, 5, mode='edge')
+    margin_size = 5
 
     start_time = time.time()
-    margin_size = 5
+    # Set stepSize = step - margin_size*2
     for (x, y, window) in utilDataGenerator.sliding_window(img, stepSize=args['step']-margin_size*2, windowSize=(args['window'], args['window'])):
             if window.shape[0] != args['window'] or window.shape[1] != args['window']:
                 continue
@@ -112,6 +115,7 @@ def run_binarize(img_in, img_out):
 
             prediction = autoencoder.predict(roi)
             prediction = (prediction > args['threshold'])
+            # Keep only parts within the margin of the prediction in the final image
             finalImg[y:(y + args['window']-margin_size*2), x:(x + args['window']-margin_size*2)] = prediction[0].reshape(args['window'], args['window'])[margin_size:args['window'] - margin_size, margin_size:args['window'] - margin_size]
 
     print( 'Time: {:.3f} seconds'.format( time.time() - start_time ) )
@@ -124,8 +128,11 @@ def run_binarize(img_in, img_out):
         finalImg = cv2.resize(finalImg, (cols, rows), interpolation = cv2.INTER_CUBIC)
 
     if args['outFilename'] != None :
+        # Find threshold
         threshold = np.average(finalImg[finalImg < 128]) + 10
+        # Change threshold to mask
         final_mask = finalImg < threshold
+        # Apply mask to original image to remove background
         output = original*final_mask[:,:,np.newaxis]
         cv2.imwrite(args['outFilename'], output)
 
