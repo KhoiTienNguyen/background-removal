@@ -30,7 +30,7 @@ class BgRemoval(RodanTask):
     settings = {
         'title': 'Remove Background',
         'type': 'object',
-        'job_queue': 'Python3',
+        'job_queue': 'GPU',
 
         'properties': {
             'Background Removal Method': {
