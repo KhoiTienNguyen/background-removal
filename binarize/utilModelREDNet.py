@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 from keras.layers import Input, Dropout, Activation, MaxPooling2D, UpSampling2D
 from keras.layers import Conv2D, Conv2DTranspose
-from tensorflow.keras.layers import BatchNormalization
+from keras.layers.normalization import BatchNormalization
 from keras import layers
 from keras.models import Model
 import keras.backend as K
